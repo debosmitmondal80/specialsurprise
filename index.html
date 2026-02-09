@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For My Love ❤️</title>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-screen" class="screen">
+        <div class="login-box">
+            <h2>Login to My Heart 🔒</h2>
+            <p class="hint">Enter your name & password.</p>
+            <input type="text" id="nameInput" placeholder="Your Name" autocomplete="off">
+            <input type="password" id="passwordInput" placeholder="Password (Hint: love)">
+            <button id="loginBtn">Enter</button>
+            <p id="error-msg" class="error"></p>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen hidden">
+        <div class="container">
+            <h2 id="quiz-question">Question goes here...</h2>
+            
+            <div id="option-container" class="quiz-options"></div>
+            
+            <p id="progress">Level 1/4</p>
+        </div>
+    </div>
+
+    <div id="permission-screen" class="screen hidden">
+        <div class="container">
+            <h1 class="bengali-text">Ami ki tomake ekta question korte pari? 🥺</h1>
+            <div class="btn-group">
+                <button id="permissionYes">Haa koro</button>
+                <button id="permissionNo">Naa</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="proposal-screen" class="screen hidden">
+        <div class="container">
+            <h2 id="greeting-msg">Hello!</h2>
+            <img id="gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3R6eW50eXQ2eXQ2eXQ2eXQ2eXQ2eXQ2eXQ2eXQ2eXQ2eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/cLS1cfxvGOPVpf9g3y/giphy.gif" alt="Cute Bear">
+            <h1 id="question">Will you be my Valentine?</h1>
+            
+            <div class="btn-group">
+                <button id="yesBtn">Yes</button>
+                <button id="noBtn">No</button>
+            </div>
+
+            <div id="message-box" class="hidden-message">
+                <p class="love-note">
+                    I knew you were the one from the start. 💖<br>
+                    You make my world brighter.<br>
+                    I love you more than code!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Answer Submitted!</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
