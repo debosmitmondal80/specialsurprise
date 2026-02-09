@@ -1,27 +1,27 @@
 ﻿// --- CONFIGURATION ---
-const CORRECT_PASSWORD = "love"; 
+const CORRECT_PASSWORD = "onlyformysona"; 
 
 // --- QUIZ DATA ---
 const quizData = [
     {
-        question: "Ajke ki bar?",
-        options: ["Bolbo na", "Janina", "Sombar", "Robibar"]
+        question: "hmm, prothom question.... Tui ki amke sarajibon sojjo korte parbi?😏",
+        options: ["Osomvob", "Khostokor", "Chesta korbo", "Partey Hobe...❤️"]
     },
     {
-        question: "Ekhon ki korchis?",
-        options: ["Kichuna", "Bose achi", "Porchi", "Reels dekhchi"]
+        question: "Amader kothai prothom dekha hoyechilo?😊",
+        options: ["Mone ney", "Mone ache", "Bolbo na", "Dekhay hoini"]
     },
     {
         question: "Amake koto ta bhalobasis?😁",
         options: ["Olpo", "Bhalo basiy na", "Onekk", "Prochur....💗♾️"]
     },
     {
-        question: "Rag korchis?",
-        options: ["Bolbo na", "Janina", "Hmm", "Ekdomy na"]
+        question: "Amar upor raag hole ki korbi?",
+        options: ["Block korbo", "Marbo", "Jhogra korbo", "Joriye dhorbo...❤️"]
     },
     {
-        question: "Birokti Hochhis?",
-        options: ["Bolbo na", "Janina", "Hmm", "Ekdomy na"]
+        question: "Koto bochor eksonge thakte chas?",
+        options: ["1 year", "2 years", "5 years", "Sarajibon...❤️"]
     },
     {
         question: "Ami kemon?",
@@ -67,7 +67,7 @@ loginBtn.addEventListener("click", () => {
 
     if (password === CORRECT_PASSWORD) {
         errorMsg.innerText = "";
-        greetingMsg.innerText = `Hello, ${name}! ❤️`;
+        greetingMsg.innerText = `Hello, ${name}! Amar  Sonaa ❤️`;
         changeScreen(loginScreen, quizScreen);
         loadQuiz();
     } else {
@@ -93,14 +93,23 @@ function loadQuiz() {
     });
 }
 
+// Add this ARRAY above handleAnswer()
+const reactions = [
+    "🟢Debosmit: O maa tai? 😮",          // Reaction to Question 1
+    "🟢Debosmit: Sotti bolchis? 🤨",      // Reaction to Question 2
+    "🟢Debosmit: Bapre !!",     // Reaction to Question 3
+    "🟢Debosmit: Thik ache.... 😏",        // Reaction to Question 4
+    "🟢Debosmit: Dushtu.... 🙈",       // Reaction to Question 5
+    "🟢Debosmit: Achhaaaaaaaa 😏❤️"    // Reaction to Final Question
+];
+
 function handleAnswer() {
-    let msg = "";
-    if (currentQuiz === quizData.length - 1) {
-        msg = "Achhaaaaaaaa 😏❤️🙈";
-    } else {
-        msg = "Achha";
-    }
+    // Get the reaction corresponding to the current question index
+    // If we run out of reactions, default to "Achha"
+    let msg = reactions[currentQuiz] || "Achha";
+
     showToast(msg);
+
     setTimeout(() => {
         currentQuiz++;
         if (currentQuiz < quizData.length) {
@@ -110,7 +119,6 @@ function handleAnswer() {
         }
     }, 1500);
 }
-
 function showToast(message) {
     toast.innerText = message;
     toast.className = "show";
@@ -125,7 +133,7 @@ permissionYes.addEventListener("click", () => {
 });
 
 yesBtn.addEventListener("click", () => {
-    question.innerHTML = "Yay! I love you! ❤️";
+    question.innerHTML = "Yay! I love you!  Amake accept korar jonno thank uu 😁😘";
     gif.src = "https://media.giphy.com/media/T86i6yDyOYz7J6dPhf/giphy.gif";
     yesBtn.style.display = "none";
     noBtn.style.display = "none";
