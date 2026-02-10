@@ -32,6 +32,7 @@ const quizData = [
 // --- DOM ELEMENTS ---
 const loginScreen = document.getElementById("login-screen");
 const quizScreen = document.getElementById("quiz-screen");
+const gameScreen = document.getElementById("game-screen");
 const permissionScreen = document.getElementById("permission-screen");
 const proposalScreen = document.getElementById("proposal-screen");
 const toast = document.getElementById("toast");
@@ -46,6 +47,11 @@ const quizQuestion = document.getElementById("quiz-question");
 const optionContainer = document.getElementById("option-container");
 const progress = document.getElementById("progress");
 const progressBar = document.getElementById("progress-bar");
+const gameScore = document.getElementById("game-score");
+const gameTimer = document.getElementById("game-timer");
+const gameArea = document.getElementById("game-area");
+const gameStartBtn = document.getElementById("game-start-btn");
+const gameMessage = document.getElementById("game-message");
 
 const permissionYes = document.getElementById("permissionYes");
 const permissionNo = document.getElementById("permissionNo");
@@ -55,6 +61,14 @@ const question = document.getElementById("question");
 const gif = document.getElementById("gif");
 const messageBox = document.getElementById("message-box");
 const sparkleLayer = document.getElementById("sparkle-layer");
+
+const gameState = {
+    score: 0,
+    timeLeft: 20,
+    isRunning: false,
+    spawnInterval: null,
+    timerInterval: null
+};
 
 // --- 1. LOGIN LOGIC ---
 loginBtn.addEventListener("click", () => {
@@ -115,7 +129,7 @@ function handleAnswer() {
         if (currentQuiz < quizData.length) {
             loadQuiz();
         } else {
-            changeScreen(quizScreen, permissionScreen);
+            changeScreen(quizScreen, gameScreen);
         }
     }, 1500);
 }
@@ -128,7 +142,115 @@ function showToast(message) {
     }, 1400);
 }
 
-// --- 3. PERMISSION & PROPOSAL LOGIC ---
+
+
+// --- 3. MINI GAME LOGIC ---
+function updateGameStats() {
+    gameScore.innerText = `Score: ${gameState.score}`;
+    gameTimer.innerText = `Time: ${gameState.timeLeft}s`;
+}
+
+function clearHearts() {
+    gameArea.querySelectorAll(".falling-heart").forEach((heart) => heart.remove());
+}
+
+function stopGame() {
+    gameState.isRunning = false;
+    clearTimeout(gameState.spawnInterval);
+    clearInterval(gameState.timerInterval);
+    gameState.spawnInterval = null;
+    gameState.timerInterval = null;
+}
+
+function createHeart() {
+    if (!gameState.isRunning) {
+        return;
+    }
+
+    const heart = document.createElement("button");
+    heart.type = "button";
+    heart.className = "falling-heart";
+    heart.innerText = "💖";
+    heart.style.left = `${Math.random() * 88}%`;
+    heart.style.animationDuration = `${3 + Math.random() * 2}s`;
+
+    heart.addEventListener("click", () => {
+        if (!gameState.isRunning) {
+            return;
+        }
+
+        gameState.score += 1;
+        updateGameStats();
+        heart.remove();
+
+        if (gameState.score >= 15) {
+            stopGame();
+            clearHearts();
+            gameMessage.innerText = "You won! Permission unlocked 💖";
+            gameStartBtn.innerText = "Play Again";
+            setTimeout(() => {
+                gameMessage.innerText = "Catch at least 15 hearts in 20 seconds to unlock the next screen.";
+                changeScreen(gameScreen, permissionScreen);
+            }, 700);
+        }
+    });
+
+    heart.addEventListener("animationend", () => {
+        heart.remove();
+    });
+
+    gameArea.appendChild(heart);
+}
+
+function startSpawningHearts() {
+    if (!gameState.isRunning) {
+        return;
+    }
+
+    createHeart();
+    const nextDelay = 400 + Math.random() * 300;
+    gameState.spawnInterval = setTimeout(startSpawningHearts, nextDelay);
+}
+
+function startGame() {
+    stopGame();
+    clearHearts();
+
+    gameState.score = 0;
+    gameState.timeLeft = 20;
+    gameState.isRunning = true;
+
+    gameMessage.innerText = "Catch as many hearts as you can!";
+    gameStartBtn.innerText = "Restart Game";
+    updateGameStats();
+
+    startSpawningHearts();
+    gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft -= 1;
+        updateGameStats();
+
+        if (gameState.timeLeft <= 0) {
+            stopGame();
+            clearHearts();
+
+            if (gameState.score >= 15) {
+                gameMessage.innerText = "You made it! Permission unlocked 💖";
+                setTimeout(() => {
+                    gameMessage.innerText = "Catch at least 15 hearts in 20 seconds to unlock the next screen.";
+                    changeScreen(gameScreen, permissionScreen);
+                }, 700);
+                return;
+            }
+
+            gameMessage.innerText = "Not enough hearts. Try again to unlock!";
+            gameStartBtn.innerText = "Retry Game";
+        }
+    }, 1000);
+}
+
+gameStartBtn.addEventListener("click", startGame);
+
+// --- 4. PERMISSION & PROPOSAL LOGIC ---
 permissionYes.addEventListener("click", () => {
     changeScreen(permissionScreen, proposalScreen);
 });
