@@ -1,5 +1,5 @@
 ﻿// --- CONFIGURATION ---
-const CORRECT_PASSWORD = "onlyformysona"; 
+const CORRECT_PASSWORD = "onlyformysona";
 
 // --- QUIZ DATA ---
 const quizData = [
@@ -27,9 +27,8 @@ const quizData = [
         question: "Ami kemon?",
         options: ["Faltu", "Khub faltu 😤", "Thikthak 😐", "Khub bhalo ❤️"]
     }
-
-
 ];
+
 // --- DOM ELEMENTS ---
 const loginScreen = document.getElementById("login-screen");
 const quizScreen = document.getElementById("quiz-screen");
@@ -46,6 +45,7 @@ const greetingMsg = document.getElementById("greeting-msg");
 const quizQuestion = document.getElementById("quiz-question");
 const optionContainer = document.getElementById("option-container");
 const progress = document.getElementById("progress");
+const progressBar = document.getElementById("progress-bar");
 
 const permissionYes = document.getElementById("permissionYes");
 const permissionNo = document.getElementById("permissionNo");
@@ -54,6 +54,7 @@ const noBtn = document.getElementById("noBtn");
 const question = document.getElementById("question");
 const gif = document.getElementById("gif");
 const messageBox = document.getElementById("message-box");
+const sparkleLayer = document.getElementById("sparkle-layer");
 
 // --- 1. LOGIN LOGIC ---
 loginBtn.addEventListener("click", () => {
@@ -82,7 +83,10 @@ function loadQuiz() {
     const currentData = quizData[currentQuiz];
     quizQuestion.innerText = currentData.question;
     progress.innerText = `Level ${currentQuiz + 1}/${quizData.length}`;
-    
+
+    const progressPercent = ((currentQuiz + 1) / quizData.length) * 100;
+    progressBar.style.width = `${progressPercent}%`;
+
     optionContainer.innerHTML = "";
     currentData.options.forEach((option) => {
         const button = document.createElement("button");
@@ -93,21 +97,17 @@ function loadQuiz() {
     });
 }
 
-// Add this ARRAY above handleAnswer()
 const reactions = [
-    "🟢Debosmit: O maa tai? 😮",          // Reaction to Question 1
-    "🟢Debosmit: Sotti bolchis? 🤨",      // Reaction to Question 2
-    "🟢Debosmit: Bapre !!",     // Reaction to Question 3
-    "🟢Debosmit: Thik ache.... 😏",        // Reaction to Question 4
-    "🟢Debosmit: Dushtu.... 🙈",       // Reaction to Question 5
-    "🟢Debosmit: Achhaaaaaaaa 😏❤️"    // Reaction to Final Question
+    "🟢Debosmit: O maa tai? 😮",
+    "🟢Debosmit: Sotti bolchis? 🤨",
+    "🟢Debosmit: Bapre !!",
+    "🟢Debosmit: Thik ache.... 😏",
+    "🟢Debosmit: Dushtu.... 🙈",
+    "🟢Debosmit: Achhaaaaaaaa 😏❤️"
 ];
 
 function handleAnswer() {
-    // Get the reaction corresponding to the current question index
-    // If we run out of reactions, default to "Achha"
     let msg = reactions[currentQuiz] || "Achha";
-
     showToast(msg);
 
     setTimeout(() => {
@@ -119,11 +119,12 @@ function handleAnswer() {
         }
     }, 1500);
 }
+
 function showToast(message) {
     toast.innerText = message;
     toast.className = "show";
-    setTimeout(() => { 
-        toast.className = toast.className.replace("show", ""); 
+    setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
     }, 1400);
 }
 
@@ -151,19 +152,18 @@ function setupRunawayButton(btn) {
         const containerHeight = window.innerHeight;
         const btnWidth = btn.offsetWidth;
         const btnHeight = btn.offsetHeight;
-        
+
         const maxLeft = containerWidth - btnWidth - 20;
         const maxTop = containerHeight - btnHeight - 20;
-        
+
         const randomX = Math.max(10, Math.random() * maxLeft);
         const randomY = Math.max(10, Math.random() * maxTop);
-        
-        // This makes it break out of the flex layout and jump
-        btn.style.position = "fixed"; 
+
+        btn.style.position = "fixed";
         btn.style.left = randomX + "px";
         btn.style.top = randomY + "px";
     };
-    
+
     btn.addEventListener("mouseover", moveBtn);
     btn.addEventListener("touchstart", (e) => {
         e.preventDefault();
@@ -173,6 +173,31 @@ function setupRunawayButton(btn) {
 
 setupRunawayButton(permissionNo);
 setupRunawayButton(noBtn);
+
+// --- Ambient sparkles ---
+function createSparkle(x, y) {
+    const sparkle = document.createElement("span");
+    sparkle.className = "sparkle";
+    sparkle.style.left = `${x}px`;
+    sparkle.style.top = `${y}px`;
+    sparkleLayer.appendChild(sparkle);
+
+    setTimeout(() => {
+        sparkle.remove();
+    }, 900);
+}
+
+let sparkleTick = 0;
+window.addEventListener("pointermove", (event) => {
+    sparkleTick += 1;
+    if (sparkleTick % 5 !== 0) {
+        return;
+    }
+
+    const offsetX = (Math.random() - 0.5) * 16;
+    const offsetY = (Math.random() - 0.5) * 16;
+    createSparkle(event.clientX + offsetX, event.clientY + offsetY);
+});
 
 // --- HELPER FUNCTIONS ---
 function changeScreen(hideScreen, showScreen) {

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="aurora"></div>
 <div class="hearts">
     <div>❤️</div><div>💖</div><div>💕</div><div>❤️</div><div>💖</div><div>💕</div>
 </div>
@@ -25,6 +26,9 @@
     <div id="quiz-screen" class="screen hidden">
         <div class="container">
             <h2 id="quiz-question">Question goes here...</h2>
+            <div class="progress-track">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
             
             <div id="option-container" class="quiz-options"></div>
             
@@ -64,6 +68,7 @@
     </div>
 
     <div id="toast">Answer Submitted!</div>
+    <div id="sparkle-layer" aria-hidden="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
