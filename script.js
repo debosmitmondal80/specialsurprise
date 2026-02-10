@@ -61,6 +61,9 @@ const question = document.getElementById("question");
 const gif = document.getElementById("gif");
 const messageBox = document.getElementById("message-box");
 const sparkleLayer = document.getElementById("sparkle-layer");
+const suspenseOverlay = document.getElementById("suspense-overlay");
+const suspenseText = document.getElementById("suspense-text");
+const loginBox = document.querySelector(".login-box");
 
 const gameState = {
     score: 0,
@@ -70,6 +73,9 @@ const gameState = {
     timerInterval: null
 };
 
+let suspenseTimer = null;
+let suspenseHideTimer = null;
+
 // --- 1. LOGIN LOGIC ---
 loginBtn.addEventListener("click", () => {
     const name = nameInput.value.trim();
@@ -77,16 +83,20 @@ loginBtn.addEventListener("click", () => {
 
     if (name === "") {
         errorMsg.innerText = "Please tell me your name! 🥺";
+        triggerShake();
         return;
     }
 
     if (password === CORRECT_PASSWORD) {
         errorMsg.innerText = "";
         greetingMsg.innerText = `Hello, ${name}! Amar  Sonaa ❤️`;
-        changeScreen(loginScreen, quizScreen);
-        loadQuiz();
+        showSuspense("Unlocking the first secret...", 1200, () => {
+            changeScreen(loginScreen, quizScreen);
+            loadQuiz();
+        });
     } else {
         errorMsg.innerText = "Wrong password! Hint: love";
+        triggerShake();
     }
 });
 
@@ -109,6 +119,9 @@ function loadQuiz() {
         button.addEventListener("click", () => handleAnswer());
         optionContainer.appendChild(button);
     });
+
+    animateOnce(quizQuestion, "question-pop");
+    animateOnce(optionContainer, "options-pop");
 }
 
 const reactions = [
@@ -129,7 +142,9 @@ function handleAnswer() {
         if (currentQuiz < quizData.length) {
             loadQuiz();
         } else {
-            changeScreen(quizScreen, gameScreen);
+            showSuspense("Final gate opening...", 1200, () => {
+                changeScreen(quizScreen, gameScreen);
+            });
         }
     }, 1500);
 }
@@ -140,6 +155,55 @@ function showToast(message) {
     setTimeout(() => {
         toast.className = toast.className.replace("show", "");
     }, 1400);
+}
+
+function animateOnce(element, className) {
+    if (!element) {
+        return;
+    }
+    element.classList.remove(className);
+    void element.offsetWidth;
+    element.classList.add(className);
+    element.addEventListener("animationend", () => {
+        element.classList.remove(className);
+    }, { once: true });
+}
+
+function triggerShake() {
+    if (!loginBox) {
+        return;
+    }
+    loginBox.classList.remove("shake-animation");
+    void loginBox.offsetWidth;
+    loginBox.classList.add("shake-animation");
+}
+
+function showSuspense(message, duration = 1200, callback) {
+    if (!suspenseOverlay || !suspenseText) {
+        if (typeof callback === "function") {
+            callback();
+        }
+        return;
+    }
+
+    suspenseText.innerText = message;
+    suspenseOverlay.classList.remove("hidden");
+    requestAnimationFrame(() => {
+        suspenseOverlay.classList.add("is-visible");
+    });
+
+    clearTimeout(suspenseTimer);
+    clearTimeout(suspenseHideTimer);
+
+    suspenseTimer = setTimeout(() => {
+        suspenseOverlay.classList.remove("is-visible");
+        suspenseHideTimer = setTimeout(() => {
+            suspenseOverlay.classList.add("hidden");
+            if (typeof callback === "function") {
+                callback();
+            }
+        }, 450);
+    }, duration);
 }
 
 
@@ -160,6 +224,7 @@ function stopGame() {
     clearInterval(gameState.timerInterval);
     gameState.spawnInterval = null;
     gameState.timerInterval = null;
+    gameArea.classList.remove("game-running");
 }
 
 function createHeart() {
@@ -190,7 +255,9 @@ function createHeart() {
             gameStartBtn.innerText = "Play Again";
             setTimeout(() => {
                 gameMessage.innerText = "Catch at least 15 hearts in 20 seconds to unlock the next screen.";
-                changeScreen(gameScreen, permissionScreen);
+                showSuspense("One more question...", 1200, () => {
+                    changeScreen(gameScreen, permissionScreen);
+                });
             }, 700);
         }
     });
@@ -219,6 +286,7 @@ function startGame() {
     gameState.score = 0;
     gameState.timeLeft = 20;
     gameState.isRunning = true;
+    gameArea.classList.add("game-running");
 
     gameMessage.innerText = "Catch as many hearts as you can!";
     gameStartBtn.innerText = "Restart Game";
@@ -237,7 +305,9 @@ function startGame() {
                 gameMessage.innerText = "You made it! Permission unlocked 💖";
                 setTimeout(() => {
                     gameMessage.innerText = "Catch at least 15 hearts in 20 seconds to unlock the next screen.";
-                    changeScreen(gameScreen, permissionScreen);
+                    showSuspense("One more question...", 1200, () => {
+                        changeScreen(gameScreen, permissionScreen);
+                    });
                 }, 700);
                 return;
             }
@@ -252,7 +322,9 @@ gameStartBtn.addEventListener("click", startGame);
 
 // --- 4. PERMISSION & PROPOSAL LOGIC ---
 permissionYes.addEventListener("click", () => {
-    changeScreen(permissionScreen, proposalScreen);
+    showSuspense("Heartbeats rising...", 1200, () => {
+        changeScreen(permissionScreen, proposalScreen);
+    });
 });
 
 yesBtn.addEventListener("click", () => {
@@ -328,5 +400,6 @@ function changeScreen(hideScreen, showScreen) {
         hideScreen.classList.add("hidden");
         showScreen.classList.remove("hidden");
         showScreen.style.opacity = "1";
+        animateOnce(showScreen, "screen-in");
     }, 500);
 }
