@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Neon Love</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Pacifico', cursive;
+            cursor: crosshair; /* Adds to the playful feel */
+            user-select: none; /* Prevents highlighting text by mistake */
+        }
+
+        /* --- 1. The Rain Styles --- */
+        .neon-text {
+            position: absolute;
+            top: -10%;
+            color: #fff;
+            white-space: nowrap;
+            z-index: 1;
+            pointer-events: none; /* Let clicks pass through to background */
+            font-weight: bold;
+        }
+
+        /* --- 2. The Trail Styles (Follows Cursor) --- */
+        .trail {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: white;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 0 10px #fff, 0 0 20px #ff0054, 0 0 30px #ff0054;
+            animation: fadeOut 1s linear forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        /* --- 3. The Burst Styles (On Click) --- */
+        .burst-particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 101;
+            font-size: 20px;
+        }
+
+        /* --- Hint Text --- */
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: sans-serif;
+            pointer-events: none;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hint">Tap anywhere & move your finger! ✨</div>
+
+    <script>
+        /* =========================================
+           PART 1: THE NEON RAIN (Background)
+           ========================================= */
+        const messages = ["I Love You", "Te Amo", "Forever", "My Everything", "Be Mine", "XOXO", "Soulmate", "Only You", "❤️"];
+        const neonColors = ["#ff0054", "#00f2ea", "#bc13fe", "#39ff14", "#ffea00"];
+
+        function createNeonDrop() {
+            const drop = document.createElement('div');
+            const text = messages[Math.floor(Math.random() * messages.length)];
+            const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+            
+            drop.innerText = text;
+            drop.classList.add('neon-text');
+            drop.style.left = Math.random() * 100 + 'vw';
+            drop.style.textShadow = `0 0 5px ${color}, 0 0 10px ${color}, 0 0 20px ${color}`;
+            
+            const duration = Math.random() * 3 + 3; // 3 to 6 seconds fall
+            const fontSize = Math.random() * 1.5 + 1;
+
+            drop.style.fontSize = fontSize + 'rem';
+            
+            // Using Web Animations API for smooth fall
+            drop.animate([
+                { transform: 'translateY(-10vh) scale(0.8)', opacity: 0 },
+                { opacity: 1, offset: 0.1 },
+                { transform: 'translateY(110vh) scale(1)', opacity: 0.5 }
+            ], {
+                duration: duration * 1000,
+                easing: 'linear'
+            }).onfinish = () => drop.remove();
+
+            document.body.appendChild(drop);
+        }
+
+        setInterval(createNeonDrop, 150);
+
+
+        /* =========================================
+           PART 2: INTERACTIVE TRAIL (Mouse/Touch)
+           ========================================= */
+        // We use a throttle to stop too many particles from spawning
+        let isThrottled = false;
+
+        function createTrail(x, y) {
+            if (isThrottled) return;
+            isThrottled = true;
+            setTimeout(() => isThrottled = false, 30); // Runs every 30ms max
+
+            const trail = document.createElement('div');
+            trail.classList.add('trail');
+            trail.style.left = x + 'px';
+            trail.style.top = y + 'px';
+            
+            // Random color for the trail
+            const color = neonColors[Math.floor(Math.random() * neonColors.length)];
+            trail.style.background = color;
+            trail.style.boxShadow = `0 0 10px ${color}, 0 0 20px ${color}`;
+            
+            document.body.appendChild(trail);
+            setTimeout(() => trail.remove(), 1000);
+        }
+
+        // Mouse Listener
+        document.addEventListener('mousemove', (e) => createTrail(e.clientX, e.clientY));
+
+        // Touch Listener (Mobile)
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            createTrail(touch.clientX, touch.clientY);
+        });
+
+
+        /* =========================================
+           PART 3: CLICK BURST (Explosion)
+           ========================================= */
+        function createBurst(x, y) {
+            // Create 15 particles per click
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('burst-particle');
+                particle.innerText = '❤️'; // You can change this to stars or letters
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                
+                // Random destination
+                const destX = (Math.random() - 0.5) * 200;
+                const destY = (Math.random() - 0.5) * 200;
+                const rotate = Math.random() * 360;
+
+                document.body.appendChild(particle);
+
+                particle.animate([
+                    { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                    { transform: `translate(${destX}px, ${destY}px) rotate(${rotate}deg)`, opacity: 0 }
+                ], {
+                    duration: 800 + Math.random() * 500,
+                    easing: 'cubic-bezier(0, .9, .57, 1)'
+                }).onfinish = () => particle.remove();
+            }
+        }
+
+        document.addEventListener('click', (e) => createBurst(e.clientX, e.clientY));
+        document.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            createBurst(touch.clientX, touch.clientY);
+        });
+
+    </script>
+</body>
+</html>
